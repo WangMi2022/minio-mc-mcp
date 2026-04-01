@@ -1,0 +1,34 @@
+# MinIO MC MCP Server 配置文件示例
+
+# HTTP 服务器配置
+host: "0.0.0.0"
+port: 8080
+
+# MinIO 连接配置
+minioEndpoint: "localhost:9000"
+minioAccessKey: "minioadmin"
+minioSecretKey: "minioadmin"
+minioAlias: "myminio"
+minioSecure: false
+
+# MC CLI 配置
+mcPath: "mc"
+commandTimeout: 30s
+
+# 日志配置
+logLevel: "info"      # debug, info, warn, error
+logFormat: "json"     # json, text
+logFile: ""           # 留空则只输出到 stdout
+
+# 性能配置
+maxConcurrentRequests: 100
+requestTimeout: 30s
+
+# 安全配置
+apiToken: ""          # 留空则不启用 API Token 认证
+allowedOrigins:
+  - "*"
+
+# 缓存配置
+enableCache: true
+cacheTTL: 5m

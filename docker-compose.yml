@@ -1,0 +1,75 @@
+services:
+  minio-mc-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - TARGETARCH=${TARGETARCH:-amd64}
+    container_name: minio-mc-mcp-server
+    image: minio-mc-mcp:latest
+
+    ports:
+      - "${MINIO_MCP_PORT:-8080}:8080"
+
+    environment:
+      # MinIO 连接配置（必填，无默认值，强制从 .env 读取）
+      - MINIO_MCP_ENDPOINT=${MINIO_MCP_ENDPOINT:?请在 .env 中配置 MINIO_MCP_ENDPOINT}
+      - MINIO_MCP_ACCESS_KEY=${MINIO_MCP_ACCESS_KEY:?请在 .env 中配置 MINIO_MCP_ACCESS_KEY}
+      - MINIO_MCP_SECRET_KEY=${MINIO_MCP_SECRET_KEY:?请在 .env 中配置 MINIO_MCP_SECRET_KEY}
+      - MINIO_MCP_ALIAS=${MINIO_MCP_ALIAS:-myminio}
+      - MINIO_MCP_SECURE=${MINIO_MCP_SECURE:-false}
+
+      # 安全配置
+      - MINIO_MCP_API_TOKEN=${MINIO_MCP_API_TOKEN:-}
+
+      # MC CLI 配置
+      - MINIO_MCP_COMMAND_TIMEOUT=${MINIO_MCP_COMMAND_TIMEOUT:-30s}
+
+      # 性能配置
+      - MINIO_MCP_MAX_CONCURRENT_REQUESTS=${MINIO_MCP_MAX_CONCURRENT_REQUESTS:-100}
+      - MINIO_MCP_REQUEST_TIMEOUT=${MINIO_MCP_REQUEST_TIMEOUT:-30s}
+
+      # 缓存配置
+      - MINIO_MCP_ENABLE_CACHE=${MINIO_MCP_ENABLE_CACHE:-true}
+      - MINIO_MCP_CACHE_TTL=${MINIO_MCP_CACHE_TTL:-5m}
+
+      # 日志配置
+      - MINIO_MCP_LOG_LEVEL=${MINIO_MCP_LOG_LEVEL:-info}
+      - MINIO_MCP_LOG_FORMAT=json
+
+    volumes:
+      - ./logs:/app/logs
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 64M
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 10s
+      retries: 3
+
+    networks:
+      - minio-mc-mcp-network
+
+networks:
+  minio-mc-mcp-network:
+    driver: bridge
+    # 如果需要连接已有的 MinIO 网络，取消注释以下配置
+    # external: true
+    # name: your-minio-network
