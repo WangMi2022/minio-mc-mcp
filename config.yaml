@@ -5,9 +5,9 @@ host: "0.0.0.0"
 port: 19000
 
 # MinIO 连接配置
-minioEndpoint: "172.30.13.209:9000"
+minioEndpoint: "169.168.0.1:9000"
 minioAccessKey: "admin"
-minioSecretKey: "QCy9YRodnoBlyv9W"
+minioSecretKey: "xxx"
 minioAlias: "minio209"
 minioSecure: false
 
